@@ -1,0 +1,350 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ShopMall API",
+    "description": "온라인 쇼핑몰 플랫폼 API 명세서",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/products": {
+      "get": {
+        "summary": "상품 목록 조회",
+        "description": "페이지네이션, 필터링, 검색, 정렬 기능을 지원하는 상품 목록 조회 API",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "페이지 번호 (기본값: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "페이지당 항목 수 (기본값: 20)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "카테고리 ID로 필터링",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "상품 상태로 필터링 (기본값: APPROVED)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["PENDING_APPROVAL", "APPROVED", "REJECTED", "OUT_OF_STOCK", "DISCONTINUED"],
+              "default": "APPROVED"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "상품명 또는 설명으로 검색",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "정렬 기준 필드 (기본값: createdAt)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "price", "name", "stock"],
+              "default": "createdAt"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "정렬 순서 (기본값: desc)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 에러",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to fetch products"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "상품 ID",
+            "example": "clx1234567890abcdefgh"
+          },
+          "name": {
+            "type": "string",
+            "description": "상품명",
+            "example": "무선 블루투스 이어폰"
+          },
+          "slug": {
+            "type": "string",
+            "description": "상품 URL 슬러그",
+            "example": "wireless-bluetooth-earphone"
+          },
+          "description": {
+            "type": "string",
+            "description": "상품 설명",
+            "example": "고음질 무선 블루투스 이어폰입니다."
+          },
+          "price": {
+            "type": "string",
+            "description": "판매 가격",
+            "example": "89000"
+          },
+          "comparePrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "비교 가격 (할인 전 가격)",
+            "example": "129000"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "재고 수량",
+            "example": 50
+          },
+          "sku": {
+            "type": "string",
+            "nullable": true,
+            "description": "상품 코드",
+            "example": "BT-EARPHONE-001"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING_APPROVAL", "APPROVED", "REJECTED", "OUT_OF_STOCK", "DISCONTINUED"],
+            "description": "상품 상태",
+            "example": "APPROVED"
+          },
+          "metaTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "SEO 메타 타이틀"
+          },
+          "metaDescription": {
+            "type": "string",
+            "nullable": true,
+            "description": "SEO 메타 설명"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "카테고리 ID"
+          },
+          "sellerId": {
+            "type": "string",
+            "description": "판매자 ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 일시"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정 일시"
+          },
+          "images": {
+            "type": "array",
+            "description": "상품 이미지 목록",
+            "items": {
+              "$ref": "#/components/schemas/ProductImage"
+            }
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "seller": {
+            "$ref": "#/components/schemas/Seller"
+          }
+        }
+      },
+      "ProductImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "이미지 ID"
+          },
+          "url": {
+            "type": "string",
+            "description": "이미지 URL",
+            "example": "https://cdn.shopmall.com/products/image1.jpg"
+          },
+          "altText": {
+            "type": "string",
+            "nullable": true,
+            "description": "대체 텍스트"
+          },
+          "order": {
+            "type": "integer",
+            "description": "이미지 표시 순서",
+            "example": 0
+          },
+          "productId": {
+            "type": "string",
+            "description": "상품 ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 일시"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "카테고리 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "카테고리명",
+            "example": "전자기기"
+          },
+          "slug": {
+            "type": "string",
+            "description": "카테고리 URL 슬러그",
+            "example": "electronics"
+          }
+        }
+      },
+      "Seller": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "판매자 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "판매자 이름",
+            "example": "테크스토어"
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true,
+            "description": "판매자 프로필 이미지 URL"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "현재 페이지 번호",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "description": "페이지당 항목 수",
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 항목 수",
+            "example": 150
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "전체 페이지 수",
+            "example": 8
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "다음 페이지 존재 여부",
+            "example": true
+          },
+          "hasPrevPage": {
+            "type": "boolean",
+            "description": "이전 페이지 존재 여부",
+            "example": false
+          }
+        }
+      }
+    }
+  }
+}
